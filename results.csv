@@ -1,0 +1,6 @@
+order,graphs,terminal_pairs,tree_orders,long_path_pairs,composed_pairs
+2,1,1,2,1,1
+3,2,6,4,6,6
+4,6,36,12,36,36
+5,21,210,42,0,0
+6,112,1680,224,0,0
