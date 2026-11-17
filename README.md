@@ -28,15 +28,17 @@ The program raises an exception at the first failed check.
 | `order` | Number of vertices in the initial graph |
 | `graphs` | Connected simple graphs of this order up to isomorphism |
 | `terminal_pairs` | Unordered vertex pairs, summed over the chosen graph representatives |
-| `tree_orders` | Two orders of one certified cut tree per graph, counting coinciding orders separately when the tree has one edge |
-| `long_path_pairs` | Pairs also checked at path lengths three and four |
-| `composed_pairs` | Pairs checked through the entire length-two bipartite reduction |
+| `tree_orders` | Two runs for each graph, using an order of one certified cut tree and its reverse. The runs coincide for a one-edge tree. |
+| `long_path_pairs` | Pairs checked separately for path addition and uniform subdivision at lengths three and four |
+| `composed_pairs` | Pairs tested on the subdivided bipartite graph of Theorem 1.1 with path length two |
 
 The default run covers 142 graphs and 1,933 graph/terminal-pair instances.
 All 43 pairs through order four also undergo the longer-path tests and the
-complete bipartite reduction. Extra checks cover the four-cycle example, the
-example one below the degree threshold, a parallel-edge input and a complete
-length-four reduction with output of girth eight. These extra examples are
+full construction of Theorem 1.1 at length two. Length three tests the path
+identity and the subdivision lemma, which require no bipartiteness. Extra
+checks cover the four-cycle, the example one below the degree threshold,
+the planar graphs K_{2,h} for h from 1 through 6, a parallel-edge input and
+one full length-four construction of girth eight. These extra examples are
 outside the table totals.
 
 ## Independent checks
@@ -47,6 +49,11 @@ graphs. The last vertex is fixed outside the shore so every cut appears once.
 Binary elimination on the shore vectors computes the relevant-cut histogram
 from independence modulo strictly cheaper cuts. On a connected graph this
 representation is linearly isomorphic to the edge-cut space.
+
+For each of the 142 base graphs, a second enumeration constructs the actual
+boundary edge sets for every shore. It collects all minimum edge sets for
+each terminal pair, takes their set union, and groups the union by size.
+The program compares this direct count to the binary-elimination profile.
 
 For the path formula, fixed-terminal counts come from direct minimization
 over separating shores. Both the augmented graph and the terminal quotient

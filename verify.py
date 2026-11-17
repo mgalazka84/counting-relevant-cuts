@@ -72,6 +72,28 @@ def fixed_pair(weights, u, v):
     return minimum, count
 
 
+def direct_union_histogram(graph):
+    """Enumerate and deduplicate minimum edge sets over all terminal pairs."""
+    terminal_pairs = list(combinations(range(graph.n), 2))
+    minima = {pair: len(graph.edges) + 1 for pair in terminal_pairs}
+    families = {pair: set() for pair in terminal_pairs}
+    for shore in range(1, 1 << (graph.n - 1)):
+        boundary = frozenset(i for i, (u, v) in enumerate(graph.edges)
+                             if ((shore >> u) ^ (shore >> v)) & 1)
+        size = len(boundary)
+        for pair in terminal_pairs:
+            u, v = pair
+            if not (((shore >> u) ^ (shore >> v)) & 1):
+                continue
+            if size < minima[pair]:
+                minima[pair] = size
+                families[pair].clear()
+            if size == minima[pair]:
+                families[pair].add(boundary)
+    relevant = set().union(*families.values())
+    return Counter(map(len, relevant))
+
+
 def quotient(graph, pairs):
     parent = list(range(graph.n))
 
@@ -194,6 +216,8 @@ def check_order(n):
         graphs += 1
         weights = edge_weights_by_shore(graph)
         expected = relevant_histogram(weights)
+        if direct_union_histogram(graph) != expected:
+            raise AssertionError(("distinct union of pair minima", graph))
         pair_data = {p: fixed_pair(weights, *p) for p in combinations(range(n), 2)}
         tree = verified_cut_tree(graph, weights, pair_data)
         for ordering in (tree, list(reversed(tree))):
@@ -236,6 +260,12 @@ def check_order(n):
 
 
 def check_worked_examples():
+    for h in range(1, 7):
+        graph = Graph(h + 2, tuple((terminal, middle) for terminal in (0, 1)
+                                   for middle in range(2, h + 2)))
+        expected = 2 if h == 1 else (1 << h) + h
+        if sum(direct_union_histogram(graph).values()) != expected:
+            raise AssertionError(("planar K_2,h example", h))
     cycle = Graph(4, ((0, 1), (1, 2), (2, 3), (3, 0)))
     weights = edge_weights_by_shore(cycle)
     summed = sum(fixed_pair(weights, u, v)[1] for u, v in combinations(range(4), 2))
